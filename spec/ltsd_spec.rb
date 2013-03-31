@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# require_relative "../ltsv.rb"
-# require __dir__ + '/spec_helper'
 require_relative './spec_helper'
 
 describe LTSV do
