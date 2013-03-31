@@ -1,6 +1,5 @@
 class LTSV
   def initialize
-    @key_index = []
     @data = { }
   end
 
@@ -8,25 +7,17 @@ class LTSV
     @data[key]
   end
 
-  def []=(key,value)
-    raise ArgumentError if key.nil?
-    raise ArgumentError if key == ""
+  def []=(key, value)
+    raise ArgumentError if (key.nil? or key.empty?)
 
-    @key_index.delete(key)
-    @key_index.push(key)
-
-    if @data.key?(key)
-      before_update = @data[key]
-      @data[key] = value
-      before_update
-    else
-      @data[key] = value
-    end
+    before_update = @data.delete(key)
+    @data[key] = value
+    before_update
   end
 
   alias :set :[]=
 
   def dump
-    @key_index.map { |ki| "#{ki}:#{@data[ki]}" }.join("\t")
+    @data.map { |k,v| "#{k}:#{v}" }.join("\t")
   end
 end
