@@ -22,7 +22,7 @@ describe LTSV do
         @ltsv["key_b"] = "value_b"
       end
 
-      it{ @ltsv.dump().should eq "key_a:value_a\tkey_b:value_b"}
+      it{ @ltsv.dump().should eq "key_a:value_a\tkey_b:value_b\n"}
     end
   end
 
@@ -33,7 +33,7 @@ describe LTSV do
       @ltsv["key_d"] = "value_d"
     end
 
-    it{ @ltsv.dump().should eq "key_c:value_c\tkey_d:value_d"}
+    it{ @ltsv.dump().should eq "key_c:value_c\tkey_d:value_d\n"}
   end
 
   context "同じキーが渡されると上書き" do
@@ -63,11 +63,11 @@ describe LTSV do
 
     describe "[]=" do
       before{ @ltsv["key_a"] = "new_value_a" }
-      it{ @ltsv.dump().should eq "key_b:value_b\tkey_a:new_value_a"}
+      it{ @ltsv.dump().should eq "key_b:value_b\tkey_a:new_value_a\n"}
     end
   end
 
-  context "null,空白がキーとして渡された時" do
+  context "null, 空文字がキーとして渡された時" do
     before { @ltsv = LTSV.new }
 
     it do
@@ -91,11 +91,38 @@ describe LTSV do
   context "空文字がvalueとして渡された時" do
     before do
       @ltsv = LTSV.new
-      @ltsv.set("key", "")
+      @ltsv.set("key_a", "")
+      @ltsv.set("key_b", "")
+    end
+
+    it { @ltsv["key_a"].should eq "" }
+    it { @ltsv.dump.should eq "key_a:\tkey_b:\n" }
+  end
+
+  context "value に null が設定された場合" do
+    before do
+      @ltsv = LTSV.new
     end
 
     it do
-      @ltsv["key"].should eq ""
+      proc{ @ltsv['key'] = nil }.should raise_error(ArgumentError)
     end
+  end
+
+  context "エスケープが必要なケース" do
+    before do
+      @ltsv = LTSV.new
+      @ltsv.set("key_tab", "\t")
+      @ltsv.set("key_colon", "\:")
+      @ltsv.set("key_line_lf"  , "\n")
+      @ltsv.set("key_line_cr"  , "\r")
+      @ltsv.set("key_line_crlf", "\r\n")
+    end
+
+    it { @ltsv["key_tab"]      .should eq '\t' }
+    it { @ltsv["key_colon"]    .should eq '\:' }
+    it { @ltsv["key_line_lf"]  .should eq '\n' }
+    it { @ltsv["key_line_cr"]  .should eq '\r' }
+    it { @ltsv["key_line_crlf"].should eq '\r\n' }
   end
 end
